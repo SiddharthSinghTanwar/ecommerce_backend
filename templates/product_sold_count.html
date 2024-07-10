@@ -1,0 +1,44 @@
+<!-- templates/product_sold_count.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Sold Counts</title>
+</head>
+<body>
+    <h1>Product Sold Counts</h1>
+    <div id="product-counts"></div>
+
+    <script>
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/products/');
+
+        socket.onopen = function(e) {
+            console.log('WebSocket connection established');
+            socket.send(JSON.stringify({action: 'get_sold_counts'}));
+        };
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            if (data.type === 'sold_counts') {
+                updateProductCounts(data.data);
+            } else if (data.type === 'product_update') {
+                updateSingleProduct(data);
+            }
+        };
+
+        function updateProductCounts(products) {
+            const productCountsDiv = document.getElementById('product-counts');
+            productCountsDiv.innerHTML = '';
+            products.forEach(product => {
+                productCountsDiv.innerHTML += `<p>Product ${product.id}: ${product.sold_count} sold</p>`;
+            });
+        }
+
+        function updateSingleProduct(data) {
+            const productElement = document.querySelector(`#product-counts p:nth-child(${data.product_id})`);
+            if (productElement) {
+                productElement.textContent = `Product ${data.product_id}: ${data.sold_count} sold`;
+            }
+        }
+    </script>
+</body>
+</html>
