@@ -1,0 +1,7 @@
+Django
+djangorestframework
+celery
+django-filter
+channels
+mysqlclient
+channels_redis

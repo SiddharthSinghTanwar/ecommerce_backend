@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: ecommerce_db
+      MYSQL_USER: your_mysql_user
+      MYSQL_PASSWORD: your_mysql_password
+      MYSQL_ROOT_PASSWORD: root_password
+  redis:
+    image: "redis:alpine"
+  celery:
+    build: .
+    command: celery -A ecommerce_backend worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
